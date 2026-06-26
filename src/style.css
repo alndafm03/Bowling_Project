@@ -1,0 +1,196 @@
+/* ============================================================
+   Global / layout
+   ============================================================ */
+:root {
+  --bg: #0b0e14;
+  --panel: rgba(18, 22, 32, 0.82);
+  --panel-border: rgba(120, 160, 255, 0.18);
+  --accent: #4da3ff;
+  --accent-2: #ffb24d;
+  --good: #5ad17a;
+  --text: #e8eefc;
+  --dim: #8b97b3;
+  --shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+#app { position: fixed; inset: 0; }
+canvas { display: block; }
+
+/* ============================================================
+   Generic floating panel
+   ============================================================ */
+.panel {
+  position: fixed;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow);
+  z-index: 10;
+  user-select: none;
+}
+
+/* ============================================================
+   Controls panel (bottom-left)
+   ============================================================ */
+#controls {
+  left: 18px;
+  bottom: 18px;
+  width: 320px;
+  max-height: calc(100vh - 36px);
+  overflow-y: auto;
+}
+#controls h2 {
+  margin: 0 0 12px;
+  font-size: 15px;
+  letter-spacing: 0.4px;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+.ctl { display: block; margin-bottom: 12px; }
+.ctl > span {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+.ctl > span small { color: var(--dim); font-weight: 400; }
+
+.ctl input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.ctl output {
+  display: block;
+  text-align: right;
+  font-size: 12px;
+  color: var(--accent-2);
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.btn-row { display: flex; gap: 8px; margin-top: 10px; }
+button {
+  flex: 1;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--panel-border);
+  background: #1b2334;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.06s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+button:hover { background: #243049; }
+button:active { transform: translateY(1px); }
+button.primary {
+  background: linear-gradient(180deg, #4da3ff, #2f7fe0);
+  border-color: transparent;
+  box-shadow: 0 4px 14px rgba(77, 163, 255, 0.4);
+}
+button.primary:hover { filter: brightness(1.08); }
+button.ghost { background: transparent; font-weight: 500; font-size: 12px; }
+
+.hint { margin: 10px 0 0; font-size: 11px; color: var(--dim); line-height: 1.5; }
+.hint b { color: var(--text); }
+
+/* ============================================================
+   HUD (top-left) — live physics read-outs
+   ============================================================ */
+#hud {
+  left: 18px;
+  top: 18px;
+  width: 268px;
+  max-height: calc(100vh - 36px);
+  overflow-y: auto;
+  font-variant-numeric: tabular-nums;
+}
+.hud-title {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--accent);
+  margin: 11px 0 3px;
+  opacity: 0.9;
+}
+.hud-title:first-child { margin-top: 0; }
+.hud-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 6px;
+  align-items: baseline;
+  font-size: 13px;
+  padding: 3px 0;
+}
+.hud-row span { color: var(--dim); }
+.hud-row b { color: var(--text); font-size: 15px; text-align: right; }
+.hud-row i { color: var(--dim); font-style: normal; font-size: 11px; width: 34px; }
+.hud-row.dim b { color: var(--accent-2); font-size: 13px; }
+#hud hr { border: none; border-top: 1px solid var(--panel-border); margin: 8px 0; }
+
+.phase {
+  padding: 1px 8px;
+  border-radius: 6px;
+  background: #243049;
+  font-size: 12px !important;
+}
+.phase.skid { background: #3a2c0e; color: #ffce6b; }
+.phase.hook { background: #3a1430; color: #ff7bd0; }
+.phase.roll { background: #0e2f1c; color: var(--good); }
+.phase.fall { background: #1c2433; color: #9fb0d0; }
+.phase.collision { background: #3a1e0e; color: #ffae6b; }
+.phase.scatter { background: #0e2438; color: #7fc4ff; }
+
+/* ============================================================
+   Score panel (top-center)
+   ============================================================ */
+#score {
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  min-width: 220px;
+}
+.score-big { font-size: 34px; font-weight: 800; line-height: 1; }
+.score-big small { font-size: 14px; color: var(--dim); font-weight: 500; margin-left: 4px; }
+.score-msg { margin-top: 6px; font-size: 12px; color: var(--accent); min-height: 16px; }
+
+/* ============================================================
+   Loading splash
+   ============================================================ */
+#loading {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  color: var(--dim);
+  font-size: 14px;
+  letter-spacing: 1px;
+  z-index: 50;
+  transition: opacity 0.6s ease;
+}
+#loading.hide { opacity: 0; pointer-events: none; }
+
+@media (max-width: 720px) {
+  #controls { width: calc(100vw - 36px); }
+  #hud { display: none; }
+}

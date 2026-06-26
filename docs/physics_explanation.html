@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>شرح كود الفيزياء — محاكي البولينج</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: #1a1a2e;
+    background: #fff;
+    padding: 40px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 26px;
+    color: #0f3460;
+    border-bottom: 3px solid #e94560;
+    padding-bottom: 10px;
+    margin-bottom: 6px;
+  }
+
+  .subtitle {
+    color: #555;
+    font-size: 13px;
+    margin-bottom: 30px;
+  }
+
+  h2 {
+    font-size: 18px;
+    color: #0f3460;
+    background: #e8f0fe;
+    border-right: 5px solid #4a90d9;
+    padding: 8px 14px;
+    margin: 32px 0 14px;
+    border-radius: 0 6px 6px 0;
+  }
+
+  h3 {
+    font-size: 14.5px;
+    color: #1a237e;
+    margin: 20px 0 8px;
+    padding-right: 10px;
+    border-right: 3px solid #e94560;
+  }
+
+  p { margin-bottom: 10px; }
+
+  .file-badge {
+    display: inline-block;
+    background: #263238;
+    color: #80cbc4;
+    font-family: 'Courier New', monospace;
+    font-size: 11.5px;
+    padding: 2px 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    direction: ltr;
+    unicode-bidi: plaintext;
+  }
+
+  pre {
+    background: #1e2a38;
+    color: #e0f2f1;
+    padding: 14px 18px;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    overflow-x: auto;
+    margin: 10px 0 16px;
+    direction: ltr;
+    text-align: left;
+    line-height: 1.6;
+    border-right: 4px solid #4a90d9;
+  }
+
+  .highlight { color: #ffcc02; }
+  .comment  { color: #78909c; font-style: italic; }
+  .keyword  { color: #80cbc4; }
+  .string   { color: #a5d6a7; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 13px;
+  }
+
+  th {
+    background: #0f3460;
+    color: #fff;
+    padding: 8px 12px;
+    text-align: right;
+  }
+
+  td {
+    border: 1px solid #dde;
+    padding: 7px 12px;
+    vertical-align: top;
+  }
+
+  tr:nth-child(even) td { background: #f5f7ff; }
+
+  .formula-box {
+    background: #fff8e1;
+    border: 1px solid #ffca28;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    direction: ltr;
+    text-align: left;
+  }
+
+  .note {
+    background: #e8f5e9;
+    border-right: 4px solid #43a047;
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+
+  .warning {
+    background: #fff3e0;
+    border-right: 4px solid #fb8c00;
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+
+  .cover {
+    text-align: center;
+    padding: 60px 0 40px;
+    border-bottom: 2px dashed #ccc;
+    margin-bottom: 40px;
+  }
+
+  .cover h1 { border: none; font-size: 32px; }
+  .cover .section-label {
+    display: inline-block;
+    background: #e94560;
+    color: white;
+    padding: 6px 20px;
+    border-radius: 20px;
+    font-size: 15px;
+    margin: 10px 0;
+  }
+
+  .toc { background: #f5f7ff; padding: 20px 28px; border-radius: 8px; margin-bottom: 30px; }
+  .toc h2 { background: none; border: none; color: #0f3460; padding: 0 0 8px 0; font-size: 16px; margin: 0 0 10px; }
+  .toc ul { padding-right: 20px; }
+  .toc li { margin: 5px 0; color: #0f3460; }
+
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin: 10px 0;
+    direction: rtl;
+  }
+
+  .step-num {
+    background: #0f3460;
+    color: white;
+    border-radius: 50%;
+    min-width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  @media print {
+    body { padding: 20px; font-size: 12px; }
+    h2 { page-break-before: auto; }
+    pre { font-size: 10.5px; }
+    .cover { page-break-after: always; }
+    h1 { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- غلاف -->
+<div class="cover">
+  <div class="section-label">قسم الفيزياء</div>
+  <h1>شرح كود الفيزياء</h1>
+  <p style="color:#555; margin-top:10px;">محاكي البولينج الفيزيائي — محرك مخصص بدون مكتبات خارجية</p>
+  <p style="color:#888; font-size:12px; margin-top:6px;">الملفات: physics/ · collision/ · config.js</p>
+</div>
+
+<!-- فهرس -->
+<div class="toc">
+  <h2>فهرس الملفات</h2>
+  <ul>
+    <li>1. config.js — الثوابت الفيزيائية وأنماط الزيت</li>
+    <li>2. RigidBody.js — الجسم الصلب ذو 6 درجات حرية</li>
+    <li>3. Integrator.js — معادلات التكامل الزمني</li>
+    <li>4. PhysicsEngine.js — محرك العالم الفيزيائي</li>
+    <li>5. BowlingPhysicsModel.js — المعادلات التحليلية</li>
+    <li>6. CollisionSystem.js — نظام الاصطدام</li>
+    <li>7. Shapes.js — اختبارات الأشكال الهندسية والقيود</li>
+  </ul>
+</div>
+
+<!-- 1. config.js -->
+<h2>1. config.js — الثوابت الفيزيائية</h2>
+<div class="file-badge">src/config.js</div>
+
+<p>هذا الملف هو <strong>المصدر الوحيد للحقيقة</strong> لكل الأرقام الفيزيائية في المشروع. أي ثابت تحتاجه موجود هنا.</p>
+
+<h3>نظام الإحداثيات</h3>
+<table>
+  <tr><th>المحور</th><th>الاتجاه</th><th>المعنى</th></tr>
+  <tr><td><code>+Y</code></td><td>للأعلى</td><td>الارتفاع</td></tr>
+  <tr><td><code>-Z</code></td><td>باتجاه الدبابيس</td><td>طول الممر (من خط الفاول → الدبابيس)</td></tr>
+  <tr><td><code>+X</code></td><td>يساراً</td><td>الانحراف الجانبي (Hook)</td></tr>
+</table>
+
+<h3>معاملات الاحتكاك (الأهم في المشروع)</h3>
+<pre><span class="comment">// src/config.js</span>
+friction: {
+  oil:        <span class="highlight">0.03</span>,   <span class="comment">// منطقة الزيت (رأس الممر) — انزلاق طويل</span>
+  transition: <span class="highlight">0.08</span>,   <span class="comment">// منطقة الانتقال (وسط)</span>
+  dry:        <span class="highlight">0.15</span>,   <span class="comment">// المنطقة الجافة (نهاية) — هنا يبدأ الانحراف</span>
+  gutter:     0.10,   <span class="comment">// داخل القناة الجانبية</span>
+  ballPin:    0.18,   <span class="comment">// احتكاك كرة ↔ دبوس</span>
+  pinPin:     0.14,   <span class="comment">// احتكاك دبوس ↔ دبوس</span>
+  pinFloor:   0.22,   <span class="comment">// احتكاك قاعدة الدبوس ↔ الأرض</span>
+}</pre>
+
+<h3>دالة احتكاك الممر (μ(z))</h3>
+<p>الدالة <code>laneFrictionAt(z)</code> تُعيد معامل الاحتكاك عند أي نقطة على الممر بشكل ناعم:</p>
+<div class="formula-box">
+  إذا d ≤ 8m  →  μ = 0.03 (زيتي)
+  إذا d ≥ 12m →  μ = 0.15 (جاف)
+  بينهما     →  smoothstep من 0.03 إلى 0.15
+  حيث d = -z (المسافة من خط الفاول)
+</div>
+
+<pre><span class="keyword">export function</span> <span class="highlight">laneFrictionAt</span>(z) {
+  <span class="keyword">const</span> d = -z;  <span class="comment">// المسافة من خط الفاول، موجبة دائماً</span>
+  <span class="keyword">if</span> (d <= oilEnd)    <span class="keyword">return</span> oil;
+  <span class="keyword">if</span> (d >= dryStart)  <span class="keyword">return</span> dry;
+  <span class="keyword">return</span> oil + (dry - oil) * smoothstep(oilEnd, dryStart, d);
+}</pre>
+
+<div class="note">
+  <strong>لماذا smoothstep وليس قفزة مفاجئة؟</strong> لأن الانتقال المفاجئ في الاحتكاك يسبب اهتزازات رقمية في المحاكاة. الانتقال الناعم يُعطي سلوكاً أكثر واقعية ومستقراً.
+</div>
+
+<h3>ثوابت الارتداد (Restitution)</h3>
+<table>
+  <tr><th>الاصطدام</th><th>معامل e</th><th>التفسير</th></tr>
+  <tr><td>كرة ↔ أرضية</td><td>0.0</td><td>لا ارتداد — الكرة تستقر على الممر</td></tr>
+  <tr><td>كرة ↔ دبوس</td><td>0.30</td><td>مرونة متوسطة (النطاق: 0.1–0.4)</td></tr>
+  <tr><td>دبوس ↔ دبوس</td><td>0.25</td><td>مرونة لانتشار التأثير</td></tr>
+  <tr><td>جدار جانبي</td><td>0.55</td><td>ارتداد مرن نسبياً</td></tr>
+</table>
+
+---
+
+<!-- 2. RigidBody.js -->
+<h2>2. RigidBody.js — الجسم الصلب</h2>
+<div class="file-badge">src/physics/RigidBody.js</div>
+
+<p>هذا الكلاس يُمثّل أي جسم فيزيائي في العالم: الكرة، كل دبوس، والأرضية (جسم ثابت invMass=0).</p>
+
+<h3>الحالة (State) — ما يُخزَّن في كل جسم</h3>
+<table>
+  <tr><th>الخاصية</th><th>النوع</th><th>المعنى</th></tr>
+  <tr><td><code>position</code></td><td>Vector3</td><td>موضع مركز الكتلة في الفضاء</td></tr>
+  <tr><td><code>quaternion</code></td><td>Quaternion</td><td>الاتجاه (دوران ثلاثي الأبعاد)</td></tr>
+  <tr><td><code>velocity</code></td><td>Vector3</td><td>السرعة الخطية (m/s)</td></tr>
+  <tr><td><code>angularVelocity</code></td><td>Vector3</td><td>السرعة الزاوية (rad/s)</td></tr>
+  <tr><td><code>invMass</code></td><td>number</td><td>معكوس الكتلة (0 = جسم ثابت)</td></tr>
+  <tr><td><code>invInertiaWorld</code></td><td>Matrix3</td><td>معكوس تنسور القصور الكلي (عالمي)</td></tr>
+</table>
+
+<h3>عزم القصور (Inertia Tensor)</h3>
+
+<p>الكرة الصلبة المتجانسة: <code>I = (2/5) × m × R²</code></p>
+<p>الاسطوانة (الدبوس) لها تنسور غير متماثل:</p>
+
+<pre><span class="keyword">setCylinderInertia</span>(mass, radius, height) {
+  <span class="keyword">const</span> Iaxis  = 0.5 * mass * radius * radius;  <span class="comment">// حول المحور الرأسي (Y)</span>
+  <span class="keyword">const</span> Itrans = (1/12) * mass * (3*radius² + height²);  <span class="comment">// حول X,Z</span>
+  <span class="comment">// هذا هو سبب سقوط الدبوس بشكل واقعي — مقاومة مختلفة في اتجاهات مختلفة</span>
+}</pre>
+
+<div class="note">
+  <strong>لماذا نُعيد حساب invInertiaWorld كل خطوة؟</strong> لأن تنسور القصور يتغير مع دوران الجسم. للكرة (متماثلة) لا يتغير، لكن للدبوس يجب تحديثه دائماً: <code>I⁻¹_world = R × I⁻¹_body × Rᵀ</code>
+</div>
+
+<h3>تطبيق النبضة (applyImpulse)</h3>
+<p>هذه أهم دالة في المشروع — تُطبّق قوة آنية (نبضة) على جسم:</p>
+
+<pre><span class="keyword">applyImpulse</span>(J, worldPoint) {
+  <span class="comment">// تغيير السرعة الخطية: Δv = J / m</span>
+  this.velocity.addScaledVector(J, this.invMass);
+
+  <span class="comment">// تغيير السرعة الزاوية: Δω = I⁻¹ × (r × J)</span>
+  <span class="comment">// r = نقطة التطبيق − مركز الكتلة</span>
+  r.subVectors(worldPoint, this.position);
+  Δω = (r × J) × invInertiaWorld;
+  this.angularVelocity.add(Δω);
+}</pre>
+
+<h3>نظام النوم (Sleeping)</h3>
+<p>الأجسام الساكنة تُوقَف تلقائياً لتوفير الحسابات:</p>
+<pre><span class="keyword">updateSleep</span>(dt) {
+  <span class="keyword">if</span> (speed < sleepLinear <span class="keyword">&&</span> angSpeed < sleepAngular) {
+    sleepTimer += dt;
+    <span class="keyword">if</span> (sleepTimer > 0.4s) this.sleep(); <span class="comment">// ينام بعد 0.4 ثانية هدوء</span>
+  } <span class="keyword">else</span> {
+    sleepTimer = 0; <span class="comment">// أي حركة تُصفّر المؤقت</span>
+  }
+}</pre>
+
+---
+
+<!-- 3. Integrator.js -->
+<h2>3. Integrator.js — معادلات التكامل</h2>
+<div class="file-badge">src/physics/Integrator.js</div>
+
+<p>التكامل يعني: كيف نُحوّل السرعة إلى موضع، والسرعة الزاوية إلى دوران.</p>
+
+<h3>لماذا Euler شبه الضمني وليس RK4؟</h3>
+
+<table>
+  <tr><th>المعيار</th><th>RK4</th><th>Euler شبه الضمني</th></tr>
+  <tr><td>الاستقرار مع الاصطدامات</td><td>❌ يمكن أن ينفجر</td><td>✅ مستقر دائماً</td></tr>
+  <tr><td>التوافق مع النبضات</td><td>❌ لا يتوافق</td><td>✅ متوافق تماماً</td></tr>
+  <tr><td>حفظ الطاقة</td><td>~جيد</td><td>✅ ممتاز (Symplectic)</td></tr>
+  <tr><td>تكلفة الحساب</td><td>4 تقييمات/خطوة</td><td>1 تقييم/خطوة</td></tr>
+</table>
+
+<div class="warning">
+  <strong>تحذير:</strong> كل محركات الفيزياء التجارية (Unity، Unreal، Bullet) تستخدم Euler شبه الضمني مع خطوة زمنية ثابتة لنفس السبب — لا تُغيّر هذا الملف إلا إذا كنت متأكداً تماماً مما تفعل.
+</div>
+
+<h3>معادلات التكامل</h3>
+<div class="formula-box">
+v  ← v + (F/m) × Δt        [الخطوة 1: القوى الخارجية]
+[ حل النبضات يُعدّل v و ω مباشرة ]
+x  ← x + v × Δt            [الخطوة 2: تحديث الموضع من السرعة الجديدة]
+q  ← normalize(q + ½ × ω⊗q × Δt)  [الخطوة 3: تحديث الدوران]
+</div>
+
+<h3>تكامل الرباعي (Quaternion Integration)</h3>
+<pre><span class="keyword">function</span> <span class="highlight">integrateQuaternion</span>(q, omega, dt) {
+  <span class="comment">// ω كـ quaternion نقي</span>
+  wq.set(omega.x, omega.y, omega.z, 0);
+  <span class="comment">// المعادلة: dq/dt = ½ × (ω ⊗ q)</span>
+  dq = wq × q;
+  q.x += 0.5 * dt * dq.x;
+  q.y += 0.5 * dt * dq.y;
+  q.z += 0.5 * dt * dq.z;
+  q.w += 0.5 * dt * dq.w;
+  q.normalize(); <span class="comment">// ضروري للحفاظ على الطول = 1</span>
+}</pre>
+
+---
+
+<!-- 4. PhysicsEngine.js -->
+<h2>4. PhysicsEngine.js — محرك العالم</h2>
+<div class="file-badge">src/physics/PhysicsEngine.js</div>
+
+<p>هذا الكلاس هو "المدير" — يُنسّق كل مكونات الفيزياء ويُقدّم الزمن بخطوات ثابتة.</p>
+
+<h3>الخطوة الزمنية الثابتة (Fixed Timestep)</h3>
+
+<div class="formula-box">
+Δt_ثابت = 1/120 ثانية (مستقل عن FPS)
+المتراكم (Accumulator) يحتفظ بالفرق بين وقت الإطار ووقت الفيزياء
+</div>
+
+<pre><span class="keyword">step</span>(frameDt) {
+  this.accumulator += Math.min(frameDt, <span class="highlight">0.1</span>); <span class="comment">// تحديد أقصى للتراكم</span>
+
+  <span class="keyword">while</span> (accumulator >= dt && n < maxSubSteps) {
+    this._subStep(dt);    <span class="comment">// خطوة فيزياء كاملة</span>
+    accumulator -= dt;
+    n++;
+  }
+
+  <span class="comment">// إذا وصلنا للحد الأقصى → أفرغ التراكم لمنع "حلزون الموت"</span>
+  <span class="keyword">if</span> (n >= maxSubSteps) accumulator = 0;
+}</pre>
+
+<div class="note">
+  <strong>"حلزون الموت" (Spiral of Death):</strong> إذا كانت الفيزياء تأخذ وقتاً أكبر من الإطار، ستتراكم الخطوات إلى ما لا نهاية. الحل: تحديد الحد الأقصى وإفراغ التراكم.
+</div>
+
+<h3>ترتيب الخطوة الفرعية</h3>
+
+<div class="flow-step">
+  <div class="step-num">1</div>
+  <div><strong>القوى الخارجية:</strong> الجاذبية → تُضاف لكل الأجسام. مقاومة الهواء (Drag) → للكرة فقط.</div>
+</div>
+<div class="flow-step">
+  <div class="step-num">2</div>
+  <div><strong>توليد جهات الاتصال:</strong> CollisionSystem.generate() يُنشئ قائمة التصادمات الفعلية.</div>
+</div>
+<div class="flow-step">
+  <div class="step-num">3</div>
+  <div><strong>حل النبضات:</strong> CollisionSystem.solve() يُطبّق النبضات على السرعات.</div>
+</div>
+<div class="flow-step">
+  <div class="step-num">4</div>
+  <div><strong>تكامل الموضع:</strong> السرعات الجديدة → مواضع جديدة.</div>
+</div>
+<div class="flow-step">
+  <div class="step-num">5</div>
+  <div><strong>تحديث النوم:</strong> الأجسام الساكنة تُوضع في وضع النوم.</div>
+</div>
+
+<h3>مقاومة الهواء (Aerodynamic Drag)</h3>
+<div class="formula-box">
+F_drag = ½ × ρ_هواء × v² × Cd × A
+حيث:
+  ρ_هواء = 1.2 kg/m³
+  Cd = 0.47  (كرة كروية)
+  A = π × R²  (مساحة المقطع)
+تأثير: Δv = -F/m × Δt  (في اتجاه معاكس للحركة)
+</div>
+
+---
+
+<!-- 5. BowlingPhysicsModel.js -->
+<h2>5. BowlingPhysicsModel.js — المعادلات التحليلية</h2>
+<div class="file-badge">src/physics/BowlingPhysicsModel.js</div>
+
+<p>هذا الملف يُطبّق المعادلات المشتقة من الدراسة الفيزيائية. يُستخدم فقط للتنبؤ وعرض القيم في HUD — ليس للمحاكاة الفعلية.</p>
+
+<h3>المراحل الثلاث للكرة</h3>
+
+<table>
+  <tr><th>المرحلة</th><th>الوصف</th><th>الشرط</th></tr>
+  <tr><td>الانزلاق (Skid)</td><td>الكرة تنزلق بدون دوران كامل</td><td>v ≠ ω × R</td></tr>
+  <tr><td>الانتقال</td><td>الاحتكاك يُسرّع الدوران ويُبطئ الحركة</td><td>جارٍ</td></tr>
+  <tr><td>التدحرج النقي (Roll)</td><td>لا انزلاق، v = ω × R</td><td>v = ω × R</td></tr>
+</table>
+
+<h3>المعادلات التحليلية أثناء الانزلاق</h3>
+
+<div class="formula-box">
+تسارع مركز الكتلة:   a = -μk × g
+تسارع زاوي:          α = (5/2) × μk × g / R
+زمن التدحرج:         t_roll = (2/7) × V₀ / (μk × g)
+سرعة التدحرج:        V_roll = (5/7) × V₀
+المسافة حتى التدحرج: D = (12/49) × V₀² / (μk × g)
+</div>
+
+<h3>التحقق من الدراسة (V₀=8 m/s, μ=0.15)</h3>
+
+<table>
+  <tr><th>الكمية</th><th>المعادلة</th><th>النتيجة النظرية</th><th>المحرك</th></tr>
+  <tr><td>t_roll</td><td>(2/7)×8/(0.15×9.81)</td><td>1.553 s</td><td>1.550 s ✅</td></tr>
+  <tr><td>V_roll</td><td>(5/7)×8</td><td>5.714 m/s</td><td>5.719 m/s ✅</td></tr>
+  <tr><td>D</td><td>(12/49)×8²/(0.15×9.81)</td><td>10.651 m</td><td>10.623 m ✅</td></tr>
+</table>
+
+<h3>تصادم الكرة بالدبوس (1D)</h3>
+<div class="formula-box">
+حفظ الزخم + معامل الارتداد:
+  Vb2 = ((mb - e×mp) / (mb + mp)) × Vb1    [سرعة الكرة بعد]
+  Vp1 = (mb×(1+e) / (mb + mp)) × Vb1       [سرعة الدبوس بعد]
+حيث: mb=7kg, mp=1.55kg, e=0.30
+</div>
+
+---
+
+<!-- 6. CollisionSystem.js -->
+<h2>6. CollisionSystem.js — نظام الاصطدام</h2>
+<div class="file-badge">src/collision/CollisionSystem.js</div>
+
+<p>يُدير كل اكتشاف وحل الاصطدامات في المشروع. ثلاث مراحل:</p>
+
+<h3>مرحلة الاكتشاف السريع — Broad Phase (AABB)</h3>
+
+<pre><span class="comment">// نُنشئ صندوقاً محيطاً (AABB) لكل جسم</span>
+this._ballAABB.setFromCenterRadius(ball.position, ball.radius);
+this._pinAABB[i].setFromCapsule(pin.worldA, pin.worldB, pin.capsuleRadius);
+
+<span class="comment">// نتحقق فقط إذا كان هناك تداخل في الصناديق</span>
+<span class="keyword">if</span> (!ballAABB.overlaps(pinAABB[i])) <span class="keyword">continue</span>; <span class="comment">// نتخطى إذا لا تداخل</span></pre>
+
+<div class="note">مع 1 كرة + 10 دبابيس الفائدة محدودة، لكن البنية موجودة لتوسيع المشروع مستقبلاً.</div>
+
+<h3>مرحلة الاكتشاف الدقيق — Narrow Phase</h3>
+
+<table>
+  <tr><th>الزوج</th><th>الشكل الهندسي</th><th>الدالة</th></tr>
+  <tr><td>كرة ↔ دبوس</td><td>كرة ↔ كبسولة</td><td><code>sphereVsCapsule()</code></td></tr>
+  <tr><td>دبوس ↔ دبوس</td><td>كبسولة ↔ كبسولة</td><td><code>capsuleVsCapsule()</code></td></tr>
+  <tr><td>جسم ↔ عالم</td><td>كبسولة/كرة ↔ أرضية</td><td><code>lane.collideBody()</code></td></tr>
+</table>
+
+<h3>حل النبضات — Sequential Impulses</h3>
+
+<pre><span class="keyword">solve</span>(dt) {
+  <span class="keyword">for</span> (c of contacts) c.prepare(dt);  <span class="comment">// حساب العوامل المسبقة</span>
+
+  <span class="comment">// نُكرر N مرة (solverIterations = 12) لزيادة الدقة</span>
+  <span class="keyword">for</span> (let it = 0; it < 12; it++) {
+    <span class="keyword">for</span> (c of contacts) c.solve();  <span class="comment">// حل كل تصادم</span>
+  }
+}</pre>
+
+<div class="note">
+  <strong>لماذا التكرار؟</strong> مع تصادمات متعددة متزامنة (مثل دبوس يُصطدم بدبوسين معاً)، التكرار يُضمن حل جميع القيود بشكل صحيح نسبياً — كلما زاد العدد، زادت الدقة وزاد الوقت المستهلك.
+</div>
+
+<h3>نظام انتشار التأثير (Domino Cascade)</h3>
+
+<pre><span class="keyword">function</span> _pinVsPin(p1, p2) {
+  <span class="comment">// دبوس متحرك يصطدم بدبوس نائم</span>
+  <span class="keyword">if</span> (p1.body.sleeping) p1.body.wake(); <span class="comment">// إيقاظ الدبوس الأول</span>
+  <span class="keyword">if</span> (p2.body.sleeping) p2.body.wake(); <span class="comment">// إيقاظ الدبوس المُصطدَم</span>
+  <span class="comment">// هذا هو ما يُسبب تساقط الدبابيس بالتسلسل</span>
+}</pre>
+
+---
+
+<!-- 7. Shapes.js -->
+<h2>7. Shapes.js — الأشكال والقيود</h2>
+<div class="file-badge">src/collision/Shapes.js</div>
+
+<h3>قيد نقطة الاتصال (Contact Constraint)</h3>
+
+<p>هذا هو قلب كل اصطدام في المشروع. يُحل بمعادلتين: الاتجاه العمودي (لمنع التداخل) والاحتكاك (ليحاكي الانزلاق والتدحرج):</p>
+
+<div class="formula-box">
+السرعة النسبية عند نقطة الاتصال:
+  v_rel = (v_B + ω_B × r_B) - (v_A + ω_A × r_A)
+
+النبضة العمودية (لمنع التداخل + الارتداد):
+  Jn = -(v_rel · n)(1+e) / kn + بومغارت × (اختراق/Δt)
+  kn = 1/mA + 1/mB + n·[I⁻¹A(rA×n)]×rA + n·[I⁻¹B(rB×n)]×rB
+
+نبضة الاحتكاك (Coulomb):
+  Jt = -(v_rel · t) / kt   مقيّدة بـ |Jt| ≤ μ × Jn
+</div>
+
+<div class="note">
+  <strong>كيف يُسبب هذا ظاهرة Hook؟</strong> عند إطلاق الكرة بدوران جانبي (ω_z)، سرعة نقطة الاتصال لها مركّب جانبي. نبضة الاحتكاك تُعاكسه، مما يُميل الكرة جانباً. في منطقة الزيت (μ=0.03) التأثير ضعيف، في المنطقة الجافة (μ=0.15) يقوى فجأة — هذا هو الـ Hook!
+</div>
+
+<h3>ملخص سير الفيزياء كاملاً</h3>
+
+<table>
+  <tr><th>الملف</th><th>المسؤولية</th><th>الأهمية</th></tr>
+  <tr><td>config.js</td><td>كل الأرقام والثوابت</td><td>⭐⭐⭐ المس هنا أولاً</td></tr>
+  <tr><td>RigidBody.js</td><td>بنية الجسم الفيزيائي</td><td>⭐⭐⭐ أساسي</td></tr>
+  <tr><td>Integrator.js</td><td>تحريك الأجسام عبر الزمن</td><td>⭐⭐ لا تُعدّل إلا باحتراس</td></tr>
+  <tr><td>PhysicsEngine.js</td><td>تنسيق خطوات الفيزياء</td><td>⭐⭐ مهم</td></tr>
+  <tr><td>CollisionSystem.js</td><td>كشف وحل الاصطدامات</td><td>⭐⭐⭐ أساسي</td></tr>
+  <tr><td>Shapes.js</td><td>الرياضيات الهندسية للاصطدام</td><td>⭐⭐ رياضيات بحتة</td></tr>
+  <tr><td>BowlingPhysicsModel.js</td><td>معادلات تحليلية للعرض</td><td>⭐ شرحي فقط</td></tr>
+</table>
+
+<br>
+<p style="text-align:center; color:#888; font-size:12px; margin-top:40px; border-top:1px solid #eee; padding-top:16px;">
+  افتح هذا الملف في المتصفح ثم Ctrl+P ← Save as PDF للحصول على نسخة PDF
+</p>
+
+</body>
+</html>

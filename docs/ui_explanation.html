@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>شرح كود الواجهات — محاكي البولينج</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+    font-size: 13.5px;
+    line-height: 1.75;
+    color: #1a1a2e;
+    background: #fff;
+    padding: 40px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 26px;
+    color: #1b0045;
+    border-bottom: 3px solid #7c4dff;
+    padding-bottom: 10px;
+    margin-bottom: 6px;
+  }
+
+  h2 {
+    font-size: 18px;
+    color: #1b0045;
+    background: #ede7f6;
+    border-right: 5px solid #7c4dff;
+    padding: 8px 14px;
+    margin: 32px 0 14px;
+    border-radius: 0 6px 6px 0;
+  }
+
+  h3 {
+    font-size: 14.5px;
+    color: #311b92;
+    margin: 20px 0 8px;
+    padding-right: 10px;
+    border-right: 3px solid #7c4dff;
+  }
+
+  p { margin-bottom: 10px; }
+
+  .file-badge {
+    display: inline-block;
+    background: #263238;
+    color: #ce93d8;
+    font-family: 'Courier New', monospace;
+    font-size: 11.5px;
+    padding: 2px 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    direction: ltr;
+    unicode-bidi: plaintext;
+  }
+
+  pre {
+    background: #1e1a2e;
+    color: #e0f2f1;
+    padding: 14px 18px;
+    border-radius: 8px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    overflow-x: auto;
+    margin: 10px 0 16px;
+    direction: ltr;
+    text-align: left;
+    line-height: 1.6;
+    border-right: 4px solid #7c4dff;
+  }
+
+  .highlight { color: #ffcc02; }
+  .comment  { color: #78909c; font-style: italic; }
+  .keyword  { color: #ce93d8; }
+  .string   { color: #a5d6a7; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 13px;
+  }
+
+  th {
+    background: #1b0045;
+    color: #fff;
+    padding: 8px 12px;
+    text-align: right;
+  }
+
+  td {
+    border: 1px solid #dde;
+    padding: 7px 12px;
+    vertical-align: top;
+  }
+
+  tr:nth-child(even) td { background: #f8f5ff; }
+
+  .note {
+    background: #e8f5e9;
+    border-right: 4px solid #43a047;
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+
+  .warning {
+    background: #fff3e0;
+    border-right: 4px solid #fb8c00;
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+
+  .info {
+    background: #e3f2fd;
+    border-right: 4px solid #1976d2;
+    padding: 10px 14px;
+    border-radius: 0 6px 6px 0;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+
+  .cover {
+    text-align: center;
+    padding: 60px 0 40px;
+    border-bottom: 2px dashed #ccc;
+    margin-bottom: 40px;
+  }
+
+  .cover h1 { border: none; font-size: 32px; }
+  .cover .section-label {
+    display: inline-block;
+    background: #7c4dff;
+    color: white;
+    padding: 6px 20px;
+    border-radius: 20px;
+    font-size: 15px;
+    margin: 10px 0;
+  }
+
+  .toc { background: #f8f5ff; padding: 20px 28px; border-radius: 8px; margin-bottom: 30px; }
+  .toc h2 { background: none; border: none; color: #1b0045; padding: 0 0 8px 0; font-size: 16px; margin: 0 0 10px; }
+  .toc ul { padding-right: 20px; }
+  .toc li { margin: 5px 0; color: #1b0045; }
+
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin: 10px 0;
+    direction: rtl;
+  }
+
+  .step-num {
+    background: #1b0045;
+    color: white;
+    border-radius: 50%;
+    min-width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .slider-card {
+    background: #f8f5ff;
+    border: 1px solid #d1c4e9;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 8px 0;
+  }
+
+  .slider-card strong { color: #4527a0; }
+
+  .hud-section {
+    display: inline-block;
+    background: #1b0045;
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    margin: 4px 2px;
+  }
+
+  .camera-mode {
+    background: #e8eaf6;
+    border-radius: 6px;
+    padding: 8px 14px;
+    margin: 6px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+  }
+
+  .camera-mode .key {
+    background: #3949ab;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 12px;
+  }
+
+  @media print {
+    body { padding: 20px; font-size: 12px; }
+    h2 { page-break-before: auto; }
+    pre { font-size: 10.5px; }
+    .cover { page-break-after: always; }
+    h1 { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- غلاف -->
+<div class="cover">
+  <div class="section-label">قسم الواجهات والرسم</div>
+  <h1>شرح كود الواجهات</h1>
+  <p style="color:#555; margin-top:10px;">محاكي البولينج الفيزيائي — UI · Rendering · Controller</p>
+  <p style="color:#888; font-size:12px; margin-top:6px;">الملفات: ui/ · rendering/ · SimulationController.js · entities/</p>
+</div>
+
+<!-- فهرس -->
+<div class="toc">
+  <h2>فهرس الملفات</h2>
+  <ul>
+    <li>1. UIControls.js — لوحة التحكم والأزرار والمفاتيح</li>
+    <li>2. HUD.js — لوحة البيانات الحية</li>
+    <li>3. Renderer.js — المحرك البصري والإضاءة</li>
+    <li>4. CameraManager.js — أوضاع الكاميرا الستة</li>
+    <li>5. DebugDraw.js — رسم ناقلات الفيزياء</li>
+    <li>6. SimulationController.js — آلة الحالات والتنسيق</li>
+    <li>7. الكيانات: Ball · Pin · PinSet · Lane</li>
+  </ul>
+</div>
+
+<!-- 1. UIControls.js -->
+<h2>1. UIControls.js — لوحة التحكم</h2>
+<div class="file-badge">src/ui/UIControls.js</div>
+
+<p>يبني لوحة التحكم (اليسار) ديناميكياً من مصفوفة الـ Sliders، ويُنظّم المفاتيح من لوحة المفاتيح. كل التفاعل يمر عبر Callbacks.</p>
+
+<h3>تعريف الـ Sliders</h3>
+<p>كل شريط تمرير مُعرَّف بكائن في مصفوفة <code>SLIDERS</code>:</p>
+
+<pre><span class="comment">// بنية كل Slider</span>
+{
+  key:   <span class="string">'power'</span>,             <span class="comment">// مفتاح للوصول من getControls()</span>
+  label: <span class="string">'Power (V₀)'</span>,        <span class="comment">// النص المعروض</span>
+  sub:   <span class="string">'launch speed'</span>,      <span class="comment">// وصف صغير تحت الاسم</span>
+  min: 4, max: 12, step: 0.1, val: 8,  <span class="comment">// نطاق القيمة</span>
+  fmt: (v) => `${v.toFixed(1)} m/s`    <span class="comment">// دالة التنسيق</span>
+}</pre>
+
+<h3>الـ Sliders السبعة وقيمها الافتراضية</h3>
+
+<div class="slider-card">
+  <strong>Power (V₀)</strong> — سرعة الإطلاق<br>
+  نطاق: 4–12 m/s | افتراضي: 8 m/s<br>
+  التأثير: زيادة السرعة → مسافة انزلاق أطول، ضربة أقوى
+</div>
+
+<div class="slider-card">
+  <strong>Spin / Rev (ω)</strong> — الدوران الجانبي<br>
+  نطاق: -25 إلى +25 rad/s | افتراضي: 10 rad/s<br>
+  التأثير: القيم الموجبة تُميل الكرة يساراً (Hook)، السلبية يميناً
+</div>
+
+<div class="slider-card">
+  <strong>Lateral Start</strong> — موضع البداية الجانبي<br>
+  نطاق: -0.45 إلى +0.45 m | افتراضي: 0 (المنتصف)<br>
+  التأثير: يُغيّر نقطة إطلاق الكرة على عرض الممر
+</div>
+
+<div class="slider-card">
+  <strong>Aim Angle</strong> — زاوية التصويب<br>
+  نطاق: -6° إلى +6° | افتراضي: 0°<br>
+  التأثير: يُوجّه الكرة قليلاً يساراً أو يميناً عند الإطلاق
+</div>
+
+<div class="slider-card">
+  <strong>Ball Mass</strong> — كتلة الكرة<br>
+  نطاق: 4–10 kg | افتراضي: 7 kg<br>
+  التأثير: يُعيد بناء عزم القصور I = (2/5)mR² مباشرة
+</div>
+
+<div class="slider-card">
+  <strong>Ball Radius</strong> — نصف قطر الكرة<br>
+  نطاق: 0.09–0.13 m | افتراضي: 0.11 m<br>
+  التأثير: يُغيّر حجم الكرة المرئي والفيزيائي معاً
+</div>
+
+<div class="slider-card">
+  <strong>Lane Grip</strong> — قبضة الممر<br>
+  نطاق: 0.5× إلى 1.8× | افتراضي: 1.0×<br>
+  التأثير: يُقيّس كل معاملات الاحتكاك (زيتي ↔ جاف)
+</div>
+
+<h3>بناء الواجهة ديناميكياً</h3>
+
+<pre><span class="keyword">for</span> (const s of SLIDERS) {
+  <span class="comment">// ننشئ: label > span + input[range] + output</span>
+  <span class="keyword">const</span> wrap = document.createElement(<span class="string">'label'</span>);
+  <span class="keyword">const</span> input = document.createElement(<span class="string">'input'</span>);
+  input.type = <span class="string">'range'</span>;
+  input.min = s.min; input.max = s.max;
+
+  input.addEventListener(<span class="string">'input'</span>, () => {
+    out.textContent = s.fmt(+input.value);
+    this._onInput(s.key); <span class="comment">// يستدعي الـ callbacks المناسبة</span>
+  });
+}</pre>
+
+<h3>ربط المفاتيح</h3>
+
+<table>
+  <tr><th>المفتاح</th><th>الحدث المُستدعى</th></tr>
+  <tr><td><code>Space</code></td><td><code>cb.onLaunch()</code> — إطلاق الكرة</td></tr>
+  <tr><td><code>R</code></td><td><code>cb.onReset()</code> — إعادة الضبط</td></tr>
+  <tr><td><code>C</code></td><td><code>cb.onCamera()</code> — تدوير الكاميرا</td></tr>
+  <tr><td><code>B</code></td><td><code>cb.onBumpers(on)</code> — تفعيل الحواجب</td></tr>
+  <tr><td><code>M</code></td><td><code>cb.onSound(on)</code> — كتم الصوت</td></tr>
+  <tr><td><code>G</code></td><td><code>cb.onDebug(on)</code> — وضع Debug</td></tr>
+  <tr><td><code>1–6</code></td><td><code>cb.onCameraDigit(d)</code> — كاميرا مباشرة</td></tr>
+</table>
+
+<h3>دالة getControls() — الأهم</h3>
+<p>تُعيد كل قيم الـ Sliders في كائن واحد، يُستخدم عند الإطلاق:</p>
+
+<pre><span class="keyword">getControls</span>() {
+  <span class="keyword">return</span> {
+    power:    +this.inputs.power.value,    <span class="comment">// V₀</span>
+    spin:     +this.inputs.spin.value,     <span class="comment">// ω جانبي</span>
+    lateralX: +this.inputs.lateral.value,  <span class="comment">// موضع X</span>
+    angleDeg: +this.inputs.angle.value,    <span class="comment">// زاوية التصويب</span>
+    mass:     +this.inputs.mass.value,
+    radius:   +this.inputs.radius.value,
+    grip:     +this.inputs.grip.value,
+  };
+}</pre>
+
+---
+
+<!-- 2. HUD.js -->
+<h2>2. HUD.js — لوحة البيانات الحية</h2>
+<div class="file-badge">src/ui/HUD.js</div>
+
+<p>تعرض جميع القيم الفيزيائية الحية (اليمين) وبطاقة النتيجة (أسفل اليمين). تُبنى ديناميكياً في الذاكرة بدون HTML ثابت.</p>
+
+<h3>الأقسام المعروضة</h3>
+
+<span class="hud-section">Kinematics</span>
+<span class="hud-section">Lane / Phase</span>
+<span class="hud-section">Energy & Momentum</span>
+<span class="hud-section">Study Prediction</span>
+<span class="hud-section">Performance</span>
+
+<br><br>
+
+<table>
+  <tr><th>المفتاح الداخلي</th><th>ما يُعرض</th><th>الوحدة</th></tr>
+  <tr><td><code>speed</code></td><td>سرعة الكرة |v|</td><td>m/s</td></tr>
+  <tr><td><code>angvel</code></td><td>السرعة الزاوية |ω|</td><td>rad/s</td></tr>
+  <tr><td><code>accel</code></td><td>التسارع |a|</td><td>m/s²</td></tr>
+  <tr><td><code>dist</code></td><td>المسافة المقطوعة</td><td>m</td></tr>
+  <tr><td><code>mu</code></td><td>معامل الاحتكاك μ + المنطقة</td><td>—</td></tr>
+  <tr><td><code>phase</code></td><td>الوضع (Skid/Hook/Roll/...)</td><td>—</td></tr>
+  <tr><td><code>ke</code></td><td>الطاقة الحركية الانتقالية ½mv²</td><td>J</td></tr>
+  <tr><td><code>re</code></td><td>الطاقة الحركية الدورانية ½Iω²</td><td>J</td></tr>
+  <tr><td><code>etot</code></td><td>الطاقة الكلية</td><td>J</td></tr>
+  <tr><td><code>mom</code></td><td>الزخم |p| = m|v|</td><td>kg·m/s</td></tr>
+  <tr><td><code>torque</code></td><td>العزم |τ| = μNR</td><td>N·m</td></tr>
+  <tr><td><code>pt</code></td><td>زمن الانزلاق المتوقع (من المعادلة)</td><td>s</td></tr>
+  <tr><td><code>pd</code></td><td>مسافة نقطة التحول المتوقعة</td><td>m</td></tr>
+  <tr><td><code>pv</code></td><td>سرعة التدحرج المتوقعة</td><td>m/s</td></tr>
+  <tr><td><code>fps</code></td><td>معدل الإطارات</td><td>—</td></tr>
+  <tr><td><code>frame</code></td><td>وقت الإطار</td><td>ms</td></tr>
+  <tr><td><code>substeps</code></td><td>خطوات الفيزياء في هذا الإطار</td><td>—</td></tr>
+</table>
+
+<h3>بناء صف واحد من HUD</h3>
+
+<pre><span class="keyword">_row</span>(key, label, unit) {
+  <span class="keyword">const</span> row = document.createElement(<span class="string">'div'</span>);
+  row.className = <span class="string">'hud-row'</span>;
+
+  <span class="keyword">const</span> s = document.createElement(<span class="string">'span'</span>); s.textContent = label;
+  <span class="keyword">const</span> b = document.createElement(<span class="string">'b'</span>);    b.textContent = <span class="string">'0'</span>;
+  <span class="keyword">const</span> i = document.createElement(<span class="string">'i'</span>);    i.textContent = unit;
+
+  row.append(s, b, i);
+  this.el[key] = b;  <span class="comment">// نحفظ مرجع للقيمة لتحديثها لاحقاً</span>
+}</pre>
+
+<h3>تحديث البيانات الحية</h3>
+
+<pre><span class="keyword">setLive</span>(v) {
+  this.el.speed.textContent  = v.speed.toFixed(2);
+  this.el.angvel.textContent = v.angVel.toFixed(2);
+  this.el.mu.textContent     = `${v.mu.toFixed(3)} (${v.zone})`;
+  this.el.phase.textContent  = v.phase.label;
+  this.el.phase.className    = `phase ${v.phase.cls}`;  <span class="comment">// للتلوين بـ CSS</span>
+  <span class="comment">// ... وبقية القيم</span>
+}</pre>
+
+---
+
+<!-- 3. Renderer.js -->
+<h2>3. Renderer.js — المحرك البصري</h2>
+<div class="file-badge">src/rendering/Renderer.js</div>
+
+<p>يُهيئ Three.js WebGLRenderer، يُنشئ المشهد، ويُعدّ نظام الإضاءة الكامل.</p>
+
+<h3>إعدادات المُصيِّر</h3>
+
+<pre><span class="keyword">const</span> renderer = <span class="keyword">new</span> THREE.WebGLRenderer({
+  antialias: <span class="highlight">true</span>,                      <span class="comment">// تنعيم الحواف</span>
+  powerPreference: <span class="string">'high-performance'</span>  <span class="comment">// يطلب GPU المخصص</span>
+});
+renderer.shadowMap.enabled = <span class="highlight">true</span>;
+renderer.shadowMap.type    = THREE.PCFSoftShadowMap;     <span class="comment">// ظلال ناعمة</span>
+renderer.toneMapping       = THREE.ACESFilmicToneMapping; <span class="comment">// تعيين الألوان سينمائي</span>
+renderer.toneMappingExposure = 1.05;</pre>
+
+<h3>نظام الإضاءة (5 مصادر)</h3>
+
+<table>
+  <tr><th>نوع الضوء</th><th>اللون</th><th>الوظيفة</th></tr>
+  <tr><td>AmbientLight</td><td>أزرق فاتح (0x6f7fb0)</td><td>إضاءة عامة أساسية، لا ظلال</td></tr>
+  <tr><td>HemisphereLight</td><td>أزرق (سماء) + برتقالي (أرضية)</td><td>ملء الظلال الطبيعية</td></tr>
+  <tr><td>DirectionalLight (key)</td><td>أبيض — بظلال 2048×2048</td><td>مصدر الضوء الرئيسي + الظلال</td></tr>
+  <tr><td>DirectionalLight (rim)</td><td>أزرق بارد (0x4d7bff)</td><td>حافة الممر باتجاه الدبابيس</td></tr>
+  <tr><td>SpotLight (pin deck)</td><td>دافئ (0xffe6c0)</td><td>إضاءة منطقة الدبابيس كنادي بولينج</td></tr>
+  <tr><td>PointLight × 3</td><td>أزرق فاتح (0xbfd2ff)</td><td>مصابيح السقف على طول الممر</td></tr>
+</table>
+
+<div class="note">
+  <strong>ACES Filmic Tone Mapping:</strong> يُحاكي كيف تلتقط كاميرا سينمائية الضوء — الألوان تبدو أكثر دفئاً وعمقاً مقارنة بالإضاءة العادية.
+</div>
+
+<h3>الخلفية والضباب</h3>
+
+<pre>this.scene.background = <span class="keyword">new</span> THREE.Color(<span class="highlight">0x05070d</span>);  <span class="comment">// أسود مزرق داكن</span>
+this.scene.fog = <span class="keyword">new</span> THREE.Fog(
+  <span class="highlight">0x05070d</span>,  <span class="comment">// لون الضباب (نفس الخلفية)</span>
+  <span class="highlight">16</span>,        <span class="comment">// يبدأ عند 16 متر</span>
+  <span class="highlight">36</span>         <span class="comment">// يختفي تماماً عند 36 متر</span>
+);</pre>
+
+---
+
+<!-- 4. CameraManager.js -->
+<h2>4. CameraManager.js — أوضاع الكاميرا</h2>
+<div class="file-badge">src/rendering/CameraManager.js</div>
+
+<p>يُدير 6 أوضاع كاميرا مختلفة، مع انتقالات ناعمة بين الأوضاع.</p>
+
+<h3>الأوضاع الستة</h3>
+
+<div class="camera-mode">
+  <span><strong>1. Orbit</strong> — دوران حر حول المشهد</span>
+  <span class="key">1</span>
+</div>
+<div class="camera-mode">
+  <span><strong>2. Follow</strong> — تتبع الكرة من الخلف والأعلى</span>
+  <span class="key">2</span>
+</div>
+<div class="camera-mode">
+  <span><strong>3. Top</strong> — مرئية من الأعلى (عصفور)</span>
+  <span class="key">3</span>
+</div>
+<div class="camera-mode">
+  <span><strong>4. Side</strong> — رؤية جانبية للممر كاملاً</span>
+  <span class="key">4</span>
+</div>
+<div class="camera-mode">
+  <span><strong>5. Impact</strong> — قريبة من منطقة الدبابيس</span>
+  <span class="key">5</span>
+</div>
+<div class="camera-mode">
+  <span><strong>6. Free</strong> — تحكم حر باستخدام OrbitControls</span>
+  <span class="key">6</span>
+</div>
+
+<h3>الانتقالات الناعمة</h3>
+
+<p>الكاميرا لا تقفز فجأة — تُطير إلى الموضع الجديد بـ Lerp:</p>
+
+<pre><span class="keyword">update</span>(ballPos, dt) {
+  <span class="comment">// موضع الهدف حسب الوضع الحالي</span>
+  <span class="keyword">const</span> target = this._getTargetPosition(ballPos);
+
+  <span class="comment">// انتقال ناعم — 8 × الفرق في كل إطار</span>
+  this.camera.position.lerp(target, Math.min(1, 8 * dt));
+  this.camera.lookAt(lookAtPoint);
+}</pre>
+
+---
+
+<!-- 5. DebugDraw.js -->
+<h2>5. DebugDraw.js — رسم الفيزياء</h2>
+<div class="file-badge">src/rendering/DebugDraw.js</div>
+
+<p>يُظهر المعلومات الفيزيائية بصرياً في المشهد ثلاثي الأبعاد عند تفعيل وضع Debug (مفتاح G).</p>
+
+<h3>ما يُرسم في وضع Debug</h3>
+
+<table>
+  <tr><th>العنصر المرسوم</th><th>اللون</th><th>ما يعني</th></tr>
+  <tr><td>ناقل السرعة</td><td>أخضر</td><td>اتجاه وحجم سرعة الكرة</td></tr>
+  <tr><td>ناقل السرعة الزاوية</td><td>أزرق</td><td>محور وسرعة الدوران</td></tr>
+  <tr><td>قوة الاحتكاك</td><td>برتقالي</td><td>اتجاه وقوة الاحتكاك عند الأرضية</td></tr>
+  <tr><td>نقاط التصادم</td><td>أحمر</td><td>أين تتصادم الأجسام</td></tr>
+  <tr><td>مسار الكرة (Trail)</td><td>تدرج أصفر→أحمر</td><td>مسار الكرة منذ الإطلاق</td></tr>
+</table>
+
+<div class="info">
+  استخدم وضع Debug لفهم سبب تصرف الكرة بطريقة معينة — يُظهر لك القوى والسرعات بشكل مرئي مباشرة في الـ 3D.
+</div>
+
+---
+
+<!-- 6. SimulationController.js -->
+<h2>6. SimulationController.js — المنسّق الرئيسي</h2>
+<div class="file-badge">src/SimulationController.js</div>
+
+<p>هذا الكلاس هو "المدير التنفيذي" للمشروع. يربط كل الأنظمة معاً ويُشغّل آلة الحالات.</p>
+
+<h3>كشف الوضع (Phase Detection)</h3>
+
+<pre><span class="keyword">classifyPhase</span>() {
+  <span class="keyword">if</span> (!state.active)          <span class="keyword">return</span> { label: <span class="string">'Ready'</span>, cls: <span class="string">''</span> };
+  <span class="keyword">if</span> (ball.airborne)          <span class="keyword">return</span> { label: <span class="string">'Fall'</span>, cls: <span class="string">'fall'</span> };
+  <span class="keyword">if</span> (collisionFlash > 0)     <span class="keyword">return</span> { label: <span class="string">'Collision'</span>, cls: <span class="string">'collision'</span> };
+  <span class="keyword">if</span> (pinsMoving && ballNearDeck) <span class="keyword">return</span> { label: <span class="string">'Scatter'</span>, cls: <span class="string">'scatter'</span> };
+
+  <span class="comment">// كشف Skid/Hook/Roll من الانزلاق الفعلي</span>
+  <span class="keyword">if</span> (slip > 0.3) {
+    <span class="keyword">if</span> (inDryZone && lateralSlip > 0.12 && sideSpin > 1)
+      <span class="keyword">return</span> { label: <span class="string">'Hook'</span>, cls: <span class="string">'hook'</span> };
+    <span class="keyword">return</span> { label: <span class="string">'Skid'</span>, cls: <span class="string">'skid'</span> };
+  }
+  <span class="keyword">return</span> { label: <span class="string">'Roll'</span>, cls: <span class="string">'roll'</span> };
+}</pre>
+
+<div class="note">
+  <strong>مهم:</strong> الكشف يعتمد على قراءة الانزلاق الفعلي من الاصطدام (ليس مؤقتاً). هذا يعني أن الـ Phases ظاهرة طبيعية من الفيزياء، وليست مبرمجة يدوياً.
+</div>
+
+<h3>حساب التلميتري (Telemetry)</h3>
+
+<pre><span class="keyword">_pushTelemetry</span>(dt) {
+  <span class="keyword">const</span> m = ball.mass, R = ball.radius;
+  <span class="keyword">const</span> v = ball.speed, w = ball.spin;
+  <span class="keyword">const</span> I = (2/5) * m * R * R;  <span class="comment">// عزم القصور: I = ⅖mR²</span>
+
+  this.hud.setLive({
+    speed:    v,
+    angVel:   w,
+    accel:    Δv / dt,           <span class="comment">// |a| من تغير السرعة</span>
+    ke:       0.5 * m * v * v,   <span class="comment">// الطاقة الانتقالية</span>
+    re:       0.5 * I * w * w,   <span class="comment">// الطاقة الدورانية</span>
+    momentum: m * v,             <span class="comment">// الزخم</span>
+    torque:   μ * m * G * R,     <span class="comment">// العزم (أثناء الانزلاق)</span>
+  });
+}</pre>
+
+<h3>التسجيل — متى ينتهي الرمي؟</h3>
+
+<pre><span class="keyword">_resolveThrow</span>(dt) {
+  <span class="keyword">const</span> ballDone = ball.isStopped() || ball.inGutter() || pastPins;
+
+  <span class="keyword">if</span> (ballDone && state.time > 0.8) {
+    state.settle += dt;
+    <span class="keyword">const</span> pinsSettled = !pins.any(p => !p.sleeping);
+
+    <span class="comment">// ينتهي بعد 4 ثوانٍ أو 1.2 ثانية بعد سكون الدبابيس</span>
+    <span class="keyword">if</span> (settle > 4 || (settle > 1.2 && pinsSettled)) {
+      this._finish(pins.countDown());
+    }
+  }
+}</pre>
+
+---
+
+<!-- 7. الكيانات -->
+<h2>7. الكيانات — Ball · Pin · PinSet · Lane</h2>
+<div class="file-badge">src/entities/</div>
+
+<h3>Ball.js — الكرة</h3>
+
+<p>تحتوي على: Mesh ثلاثي الأبعاد + RigidBody + مُصادِم كروي. توفر خصائص عالية المستوى للـ Controller:</p>
+
+<table>
+  <tr><th>الخاصية/الدالة</th><th>ما تُعيد</th></tr>
+  <tr><td><code>ball.speed</code></td><td>|v| (سرعة الكرة)</td></tr>
+  <tr><td><code>ball.spin</code></td><td>|ω| (السرعة الزاوية)</td></tr>
+  <tr><td><code>ball.slipSpeed</code></td><td>سرعة الانزلاق عند نقطة الاتصال</td></tr>
+  <tr><td><code>ball.airborne</code></td><td>هل الكرة في الهواء؟</td></tr>
+  <tr><td><code>ball.forwardSpeed</code></td><td>المركّب في اتجاه الممر (-Z)</td></tr>
+  <tr><td><code>ball.distanceTravelled</code></td><td>المسافة الكلية منذ الإطلاق</td></tr>
+  <tr><td><code>ball.inGutter()</code></td><td>هل الكرة في القناة الجانبية؟</td></tr>
+  <tr><td><code>ball.sync()</code></td><td>مزامنة الـ Mesh مع الـ RigidBody</td></tr>
+  <tr><td><code>ball.launch(controls)</code></td><td>إطلاق الكرة بقيم الـ Sliders</td></tr>
+  <tr><td><code>ball.setMassRadius(m, r)</code></td><td>تغيير الكتلة والحجم مباشرة</td></tr>
+</table>
+
+<h3>Pin.js — الدبوس</h3>
+
+<p>كل دبوس: نموذج كبسولة (capsule) للاصطدام + RigidBody بتنسور اسطواني + مجموعة "كرات اتصال" للوقوف على الأرضية.</p>
+
+<div class="info">
+  <strong>كيف يقف الدبوس؟</strong> يُستخدم حلقة من 4 نقاط اتصال عند قاعدة الدبوس (دائرة support polygon). طالما مركز الكتلة يقع داخل هذه الدائرة، الدبوس يبقى واقفاً. أي ضربة تُخرجه → يسقط بشكل طبيعي.
+</div>
+
+<h3>PinSet.js — مجموعة الدبابيس</h3>
+
+<p>يُدير الـ 10 دبابيس بالتشكيلة المثلثية الكلاسيكية:</p>
+
+<pre><span class="comment">// ترتيب الدبابيس (4-3-2-1 صفوف)</span>
+صف 1: دبوس 0              (الـ Head Pin)
+صف 2: دبابيس 1,2
+صف 3: دبابيس 3,4,5
+صف 4: دبابيس 6,7,8,9
+
+<span class="comment">// الوظائف الأساسية:</span>
+pins.rack()        <span class="comment">// ترتيب الدبابيس في مواضعها</span>
+pins.countDown()   <span class="comment">// عد الدبابيس الساقطة</span>
+pins.sync()        <span class="comment">// مزامنة الـ Meshes مع الفيزياء</span></pre>
+
+<h3>Lane.js — الممر</h3>
+
+<p>يُنشئ الممر البصري والفيزيائي: الأرضية، القنوات الجانبية، الجدران، والحواجب الاختيارية.</p>
+
+<pre><span class="comment">// collideBody — الأهم في Lane.js</span>
+<span class="comment">// يُسجّل جهات اتصال كل جسم مع الأرضية/الجدران</span>
+collideBody(body, collisionSystem) {
+  <span class="comment">// يفحص كل كرة اصطدام على الجسم</span>
+  <span class="comment">// يُستدعى من CollisionSystem.generate() كل خطوة فيزياء</span>
+}</pre>
+
+---
+
+<h2>ملخص تدفق الواجهات</h2>
+
+<div class="flow-step">
+  <div class="step-num">1</div>
+  <div><strong>UIControls</strong> يستقبل مدخلات المستخدم (Sliders + Keyboard)</div>
+</div>
+<div class="flow-step">
+  <div class="step-num">2</div>
+  <div>Callbacks تُرسل للـ <strong>SimulationController</strong> (launch/reset/setBallParams)</div>
+</div>
+<div class="flow-step">
+  <div class="step-num">3</div>
+  <div><strong>SimulationController.update()</strong> يُشغّل الفيزياء ويحسب التلميتري</div>
+</div>
+<div class="flow-step">
+  <div class="step-num">4</div>
+  <div><strong>HUD.setLive()</strong> يُحدّث جميع أرقام لوحة البيانات</div>
+</div>
+<div class="flow-step">
+  <div class="step-num">5</div>
+  <div><strong>Renderer.render()</strong> يرسم الإطار النهائي على الشاشة</div>
+</div>
+<div class="flow-step">
+  <div class="step-num">6</div>
+  <div>تكرار من الخطوة 3 في كل إطار (~60 مرة/ثانية)</div>
+</div>
+
+<br>
+
+<table>
+  <tr><th>الملف</th><th>المسؤولية</th><th>أين تُعدّل</th></tr>
+  <tr><td>UIControls.js</td><td>الـ Sliders والأزرار والمفاتيح</td><td>إضافة/تعديل controls</td></tr>
+  <tr><td>HUD.js</td><td>عرض البيانات الحية</td><td>إضافة قيم جديدة للعرض</td></tr>
+  <tr><td>Renderer.js</td><td>WebGL والإضاءة</td><td>تغيير الألوان والظلال</td></tr>
+  <tr><td>CameraManager.js</td><td>أوضاع الكاميرا</td><td>إضافة زاوية جديدة</td></tr>
+  <tr><td>DebugDraw.js</td><td>تصور الفيزياء</td><td>إضافة معلومات debug</td></tr>
+  <tr><td>SimulationController.js</td><td>ربط كل شيء معاً</td><td>تغيير منطق اللعبة</td></tr>
+  <tr><td>Ball/Pin/Lane</td><td>الكيانات المرئية+فيزيائية</td><td>تغيير الشكل أو السلوك</td></tr>
+</table>
+
+<br>
+<p style="text-align:center; color:#888; font-size:12px; margin-top:40px; border-top:1px solid #eee; padding-top:16px;">
+  افتح هذا الملف في المتصفح ثم Ctrl+P ← Save as PDF للحصول على نسخة PDF
+</p>
+
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bowling Physics Simulator — custom engine (Three.js only)</title>
+  </head>
+  <body>
+    <!-- WebGL canvas is injected here by the Renderer. -->
+    <div id="app"></div>
+
+    <!-- Live physics read-outs (built by ui/HUD.js). -->
+    <div id="hud" class="panel"></div>
+
+    <!-- Pin count / status (built by ui/HUD.js). -->
+    <div id="score" class="panel"></div>
+
+    <!-- Sliders + buttons (built by ui/UIControls.js). -->
+    <div id="controls" class="panel"></div>
+
+    <div id="loading">Building scene &amp; physics engine…</div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
