@@ -25,29 +25,48 @@ import { RigidBody } from '../physics/RigidBody.js';
 const _contact = new THREE.Vector3();
 const _cv = new THREE.Vector3();
 
+/** Diagonal stripe colours, outer→inner (classic bowling-ball look). */
+const STRIPE_COLORS = ['#0c0c0f', '#c81e2c', '#f2b90c', '#c81e2c', '#0c0c0f'];
+
 function makeBallTexture() {
   const c = document.createElement('canvas');
   c.width = c.height = 512;
   const ctx = c.getContext('2d');
-  const grad = ctx.createLinearGradient(0, 0, 512, 512);
-  grad.addColorStop(0, '#1b2a6b');
-  grad.addColorStop(0.5, '#3b1d6e');
-  grad.addColorStop(1, '#0c1440');
-  ctx.fillStyle = grad;
+
+  // Base colour behind the stripes.
+  ctx.fillStyle = '#0c0c0f';
   ctx.fillRect(0, 0, 512, 512);
-  for (let i = 0; i < 40; i++) {
-    ctx.strokeStyle = `rgba(${120 + Math.random() * 120},${120 + Math.random() * 120},255,0.10)`;
-    ctx.lineWidth = 1 + Math.random() * 6;
+
+  // Diagonal stripes: rotate the canvas, paint wide vertical bars, restore.
+  ctx.save();
+  ctx.translate(256, 256);
+  ctx.rotate(THREE.MathUtils.degToRad(28));
+  ctx.translate(-256, -256);
+  const n = STRIPE_COLORS.length;
+  const stripeW = (512 * 2.2) / n; // overshoot so rotation still covers corners
+  for (let i = 0; i < n; i++) {
+    ctx.fillStyle = STRIPE_COLORS[i];
+    ctx.fillRect(-512 * 0.6 + i * stripeW, -512 * 0.6, stripeW, 512 * 2.2);
+  }
+  ctx.restore();
+
+  // Subtle marbled sheen so the stripes don't look flat/decal-like.
+  for (let i = 0; i < 25; i++) {
+    ctx.strokeStyle = `rgba(255,255,255,${0.03 + Math.random() * 0.05})`;
+    ctx.lineWidth = 1 + Math.random() * 3;
     ctx.beginPath();
-    ctx.arc(Math.random() * 512, Math.random() * 512, 30 + Math.random() * 160, 0, Math.PI * 2);
+    ctx.arc(Math.random() * 512, Math.random() * 512, 20 + Math.random() * 120, 0, Math.PI * 2);
     ctx.stroke();
   }
+
+  // Finger holes.
   for (const [hx, hy] of [[250, 120], [300, 150], [275, 185]]) {
     ctx.fillStyle = '#05060c';
     ctx.beginPath();
     ctx.arc(hx, hy, 13, 0, Math.PI * 2);
     ctx.fill();
   }
+
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
   return tex;
@@ -87,6 +106,8 @@ export class Ball {
 
     this.launched = false;
     this.startZ = CONFIG.ball.startZ;
+    this.hitPin = false;   // set once this throw has struck a pin
+    this.vanished = false; // true once the ball has been hidden past the pit
     this.reset(0);
   }
 
@@ -111,8 +132,30 @@ export class Ball {
     b.quaternion.set(0, 0, 0, 1);
     this.launched = false;
     this.startZ = b.position.z;
+    this.hitPin = false;
+    this.vanished = false;
+    this.mesh.visible = true;
     this.updateColliders();
     this.sync();
+  }
+
+  /** Called once this throw's ball has struck a pin (see CollisionSystem events). */
+  registerPinHit() {
+    this.hitPin = true;
+  }
+
+  /**
+   * Hide the ball and freeze it in place. Used once the ball has both struck a
+   * pin AND broken through the back wall — instead of bouncing back into the
+   * pit, it simply disappears from the scene.
+   */
+  vanish() {
+    if (this.vanished) return;
+    this.vanished = true;
+    this.mesh.visible = false;
+    this.body.velocity.setScalar(0);
+    this.body.angularVelocity.setScalar(0);
+    this.body.sleeping = true; // stop integration/contacts entirely
   }
 
   /** Live-edit mass & radius from the UI (rebuilds inertia, scales the mesh). */

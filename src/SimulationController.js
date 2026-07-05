@@ -13,7 +13,7 @@
  */
 
 import * as THREE from 'three';
-import { CONFIG, G, laneFrictionAt, laneZoneAt, OIL_END_Z } from './config.js';
+import { CONFIG, G, laneFrictionAt, laneZoneAt, OIL_END_Z, BACK_WALL_Z } from './config.js';
 import { predict } from './physics/BowlingPhysicsModel.js';
 
 export class SimulationController {
@@ -160,11 +160,21 @@ export class SimulationController {
   /* ------------------------------------------------------------------ */
   _handleAudio() {
     for (const ev of this.engine.collision.events) {
-      if (ev.kind === 'ballPin') { this.audio.ballImpact(ev.speed); this.collisionFlash = 0.3; }
+      if (ev.kind === 'ballPin') { this.audio.ballImpact(ev.speed); this.collisionFlash = 0.3; this.ball.registerPinHit(); }
       else if (ev.kind === 'pinPin') { this.audio.pinClatter(ev.index, ev.speed); }
     }
     const onLane = this.state.active && !this.ball.inGutter() && !this.ball.airborne;
     this.audio.updateRolling(this.ball.forwardSpeed, onLane);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Ball vanish (breaks through the back wall after hitting a pin)      */
+  /* ------------------------------------------------------------------ */
+  _maybeVanishBall() {
+    if (this.ball.vanished) return;
+    if (this.ball.position.z < BACK_WALL_Z - this.ball.radius) {
+      this.ball.vanish();
+    }
   }
 
   /* ------------------------------------------------------------------ */
@@ -218,6 +228,9 @@ export class SimulationController {
 
     // 4. Audio (impacts + rolling).
     this._handleAudio();
+
+    // 4b. Hide the ball if it broke through the back wall after a pin hit.
+    this._maybeVanishBall();
 
     // 5. Telemetry + scoring + debug.
     this._pushTelemetry(dt);

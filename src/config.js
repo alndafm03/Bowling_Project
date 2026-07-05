@@ -157,3 +157,6 @@ export function laneZoneAt(z) {
 /* Convenience constants. */
 export const OIL_END_Z = -CONFIG.lane.oilEnd;
 export const DRY_START_Z = -CONFIG.lane.dryStart;
+
+/** z of the back wall / pit, behind the pin deck (matches Lane's backdrop). */
+export const BACK_WALL_Z = -(CONFIG.lane.length + 0.15);

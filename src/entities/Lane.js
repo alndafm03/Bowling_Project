@@ -232,7 +232,10 @@ export class Lane {
       }
 
       // ---- back wall (pit) ----
-      if (s.z - s.r < backZ) {
+      // The ball NEVER bounces off the back wall — it always breaks through
+      // into the pit after passing the pins, and is hidden from there by
+      // SimulationController once fully past it. Pins still rebound normally.
+      if (!isBall && s.z - s.r < backZ) {
         _pt.set(s.x, s.y, backZ);
         cs.addStaticContact(body, N_BACK, _pt, backZ - (s.z - s.r), restWall, WALL_FRICTION);
       }
