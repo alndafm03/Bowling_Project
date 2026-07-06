@@ -96,6 +96,13 @@ export const CONFIG = {
     deckZ: -17.4,        // z of the head pin (#1); rows recede down-lane
     linearDamping: 0.02,
     angularDamping: 0.04,
+    /* Rolling resistance — Coulomb friction vanishes for a body rolling
+     * without slipping, so a toppled pin (≈ a cylinder on its side) would
+     * roll forever. Real pins stop fast because they are NOT true cylinders.
+     * Modelled as extra damping applied only while the pin touches the floor
+     * (airborne scatter is unaffected). */
+    groundLinearDamping: 1.0,  // 1/s
+    groundAngularDamping: 2.5, // 1/s
   },
 
   /* ================================================================== */
@@ -116,6 +123,9 @@ export const CONFIG = {
     solverIterations: 12,   // sequential-impulse velocity iterations
     baumgarte: 0.2,         // positional error feedback factor (0..1)
     penetrationSlop: 0.0008,// m  allowed overlap before correction kicks in
+    maxCorrectionVelocity: 0.5, // m/s cap on the Baumgarte push-out — a deep
+                            // (mis-detected) penetration nudges the body out
+                            // over several steps instead of catapulting it
     restitutionSlop: 0.25,  // m/s below which restitution is suppressed (no jitter)
     // Sleeping — stops settled pins from jittering & saves work.
     sleepLinear: 0.06,      // m/s

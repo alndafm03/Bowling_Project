@@ -61,6 +61,10 @@ export class RigidBody {
     this.sleeping = false;
     this._sleepTimer = 0;
 
+    // Set by Lane each sub-step while the body rests on a floor surface —
+    // drives the pins' rolling resistance (see PhysicsEngine).
+    this.groundContact = false;
+
     if (opts.sphere) this.setSphereInertia(mass, opts.sphere);
     else if (opts.cylinder) this.setCylinderInertia(mass, opts.cylinder.radius, opts.cylinder.height);
   }
