@@ -24,6 +24,7 @@ const N_LEFT = new THREE.Vector3(-1, 0, 0);
 const N_RIGHT = new THREE.Vector3(1, 0, 0);
 const N_BACK = new THREE.Vector3(0, 0, 1);
 const _pt = new THREE.Vector3();
+const _n = new THREE.Vector3();
 
 const FLOOR_MARGIN = 0.01;  // speculative margin → stable resting contacts
 const WALL_FRICTION = 0.10;
@@ -137,7 +138,8 @@ export class Lane {
 
     for (const side of [-1, 1]) {
       const g = new THREE.Mesh(new THREE.BoxGeometry(gw, 0.04, this.L), gutterMat);
-      g.position.set(side * gutterCenterX, -gd, -this.L / 2);
+      // Top face of the visual channel sits exactly at the physics floor −gd.
+      g.position.set(side * gutterCenterX, -gd - 0.02, -this.L / 2);
       g.receiveShadow = true;
       this.group.add(g);
 
@@ -203,21 +205,66 @@ export class Lane {
 
     for (const s of entity.worldSpheres) {
       const ax = Math.abs(s.x);
+      const sideSign = s.x >= 0 ? 1 : -1;
 
-      // ---- floor (lane bed or gutter channel) ----
-      let supportY = null, mu = 0;
+      // ---- lane slab (raised bed: top face y=0, side faces x=±halfW) ----
+      // The bed is resolved against its NEAREST feature — top face, vertical
+      // side face or the top edge between them. This is what lets a body drop
+      // into the gutter and stay there: with a top-face-only model, a sphere
+      // sitting below lane level that drifted inside |x| ≤ halfW read as ~9 cm
+      // of floor penetration and was catapulted back up onto the boards.
       if (ax <= halfW) {
-        supportY = 0;
-        mu = isBall ? laneFrictionAt(s.z) : CONFIG.friction.pinFloor;
+        if (s.y >= 0) {
+          // Above the bed → regular floor support (skid → hook → roll).
+          const pen = s.r - s.y;
+          if (pen > -FLOOR_MARGIN) {
+            _pt.set(s.x, 0, s.z);
+            const mu = isBall ? laneFrictionAt(s.z) : CONFIG.friction.pinFloor;
+            cs.addStaticContact(body, N_UP, _pt, pen, restFloor, mu);
+            if (!isBall) body.groundContact = true;
+          }
+        } else if (!this.bumpersOn) {
+          // Centre clipped inside the slab (crossed the edge from the gutter)
+          // → push it out through the nearest face, never launch it upward.
+          const dTop = -s.y, dSide = halfW - ax;
+          if (dTop <= dSide) {
+            _pt.set(s.x, 0, s.z);
+            const mu = isBall ? laneFrictionAt(s.z) : CONFIG.friction.pinFloor;
+            cs.addStaticContact(body, N_UP, _pt, s.r + dTop, restFloor, mu);
+            if (!isBall) body.groundContact = true;
+          } else {
+            _pt.set(sideSign * halfW, s.y, s.z);
+            cs.addStaticContact(body, sideSign > 0 ? N_RIGHT : N_LEFT, _pt,
+              s.r + dSide, 0, CONFIG.friction.gutter);
+          }
+        }
       } else if (!this.bumpersOn && ax <= wallInner) {
-        supportY = -gd;
-        mu = CONFIG.friction.gutter;
-      }
-      if (supportY !== null) {
-        const pen = supportY + s.r - s.y;
+        // ---- gutter channel floor ----
+        const pen = -gd + s.r - s.y;
         if (pen > -FLOOR_MARGIN) {
-          _pt.set(s.x, supportY, s.z);
-          cs.addStaticContact(body, N_UP, _pt, pen, restFloor, mu);
+          _pt.set(s.x, -gd, s.z);
+          cs.addStaticContact(body, N_UP, _pt, pen, restFloor, CONFIG.friction.gutter);
+          if (!isBall) body.groundContact = true;
+        }
+        // ---- the slab's side: vertical face below y=0, rounded lip at y=0 ----
+        if (s.y < s.r) {
+          const dx = ax - halfW; // horizontal gap to the side face (> 0 here)
+          if (s.y >= 0) {
+            // Sphere vs the top-edge line (x = ±halfW, y = 0): a body sliding
+            // off the lane rolls over this lip smoothly into the channel.
+            const d2 = dx * dx + s.y * s.y;
+            if (d2 < s.r * s.r && d2 > 1e-12) {
+              const d = Math.sqrt(d2);
+              _n.set((sideSign * dx) / d, s.y / d, 0);
+              _pt.set(sideSign * halfW, 0, s.z);
+              cs.addStaticContact(body, _n, _pt, s.r - d, 0, CONFIG.friction.gutter);
+            }
+          } else if (dx < s.r) {
+            // Below the lane top → the vertical face blocks re-entry sideways.
+            _pt.set(sideSign * halfW, s.y, s.z);
+            cs.addStaticContact(body, sideSign > 0 ? N_RIGHT : N_LEFT, _pt,
+              s.r - dx, 0, CONFIG.friction.gutter);
+          }
         }
       }
 

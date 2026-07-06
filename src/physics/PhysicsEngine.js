@@ -80,7 +80,10 @@ export class PhysicsEngine {
 
   _subStep(dt) {
     // 1. External forces → velocity (gravity always; drag on the ball).
-    for (const b of this.bodies) b.integrateForces(dt, this.gravity);
+    for (const b of this.bodies) {
+      b.groundContact = false; // refreshed by Lane during contact generation
+      b.integrateForces(dt, this.gravity);
+    }
     this._applyBallDrag(dt);
 
     // 2. Build the contact set (floor / walls / ball-pin / pin-pin).
@@ -89,6 +92,9 @@ export class PhysicsEngine {
     // 3. Resolve velocities with sequential impulses.
     this.collision.solve(dt);
 
+    // 3b. Rolling resistance on grounded pins (they must actually stop).
+    this._applyRollingResistance(dt);
+
     // 4. Velocity → pose (semi-implicit Euler).
     for (const b of this.bodies) b.integratePose(dt);
 
@@ -96,6 +102,25 @@ export class PhysicsEngine {
     for (const b of this.bodies) b.updateSleep(dt);
 
     this.simTime += dt;
+  }
+
+  /**
+   * Rolling resistance for pins touching the floor. Coulomb friction is zero
+   * for a body rolling without slipping (the contact point is stationary), so
+   * a toppled pin — geometrically a cylinder on its side — would roll forever.
+   * Real pins stop quickly because they are not true cylinders; that missing
+   * effect is modelled as extra damping applied ONLY while grounded, so the
+   * airborne scatter keeps its full energy.
+   */
+  _applyRollingResistance(dt) {
+    const fl = Math.max(0, 1 - CONFIG.pin.groundLinearDamping * dt);
+    const fa = Math.max(0, 1 - CONFIG.pin.groundAngularDamping * dt);
+    for (const p of this.pins) {
+      const b = p.body;
+      if (b.sleeping || !b.groundContact) continue;
+      b.velocity.multiplyScalar(fl);
+      b.angularVelocity.multiplyScalar(fa);
+    }
   }
 
   /** Aerodynamic drag on the ball:  F = ½ ρ v² Cd A,  opposite to velocity. */

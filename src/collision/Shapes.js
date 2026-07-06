@@ -147,9 +147,12 @@ export class Contact {
 
     // Relative normal velocity (B point − A point) for restitution.
     const vn = this._relativeNormalVelocity();
-    const { restitutionSlop, baumgarte, penetrationSlop } = CONFIG.sim;
+    const { restitutionSlop, baumgarte, penetrationSlop, maxCorrectionVelocity } = CONFIG.sim;
     this.velocityBias = vn < -restitutionSlop ? -this.restitution * vn : 0;
-    this.positionBias = (baumgarte / dt) * Math.max(this.penetration - penetrationSlop, 0);
+    this.positionBias = Math.min(
+      (baumgarte / dt) * Math.max(this.penetration - penetrationSlop, 0),
+      maxCorrectionVelocity
+    );
 
     this.normalImpulse = 0;
     this.tImpulse1 = 0;
